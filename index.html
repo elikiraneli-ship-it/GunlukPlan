@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Günlük Ders Planı</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef1f6;--card:#fff;--ink:#0b2a4a;--mut:#5a6b80;--line:#d3dae5;--acc:#1f7a6d;--accT:#fff;--paper:#fff;--paperInk:#111}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1621;--card:#16222f;--ink:#e6edf5;--mut:#93a3b6;--line:#2a3a4c;--acc:#3fb5a3;--accT:#06201c}}
+:root[data-theme="dark"]{--bg:#0e1621;--card:#16222f;--ink:#e6edf5;--mut:#93a3b6;--line:#2a3a4c;--acc:#3fb5a3;--accT:#06201c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+header{padding:16px 16px 8px;max-width:1100px;margin:auto}
+h1{font:700 22px/1.2 Georgia,"Times New Roman",serif;margin:0}
+header p{margin:4px 0 0;color:var(--mut);font-size:14px}
+.tabs{display:flex;gap:8px;max-width:1100px;margin:8px auto 0;padding:0 16px}
+.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600}
+.tabs button.on{background:var(--acc);color:var(--accT);border-color:var(--acc)}
+main{max-width:1100px;margin:12px auto;padding:0 16px 96px;display:grid;gap:16px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel.hide{display:none}
+label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin:12px 0 4px}
+input,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:92px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+details{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+summary{font-weight:600;cursor:pointer}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.bar button{padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-weight:600}
+.bar button.p{background:var(--acc);color:var(--accT);border-color:var(--acc)}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+/* Belge */
+.sheet{background:var(--paper);color:var(--paperInk);font:13px/1.45 Arial,Helvetica,sans-serif;padding:20px;border-radius:6px;overflow-x:auto}
+.sheet .t{text-align:center;font-weight:700;font-size:13px;white-space:pre-line}
+.sheet table{width:100%;border-collapse:collapse;margin:12px 0}
+.sheet td{border:1px solid #888;padding:5px 8px;vertical-align:top}
+.sheet td:first-child{width:36%;font-weight:700;background:#f1f4f8}
+.sheet h3{margin:14px 0 4px;font-size:13px;color:#003366}
+.sheet .b{white-space:pre-wrap}
+.sheet .sig{display:grid;grid-template-columns:1fr 1fr;text-align:center;margin-top:28px;white-space:pre-line}
+@media (min-width:860px){
+ main{grid-template-columns:420px 1fr;align-items:start}
+ .tabs{display:none}
+ .panel.hide{display:block}
+}
+@media print{
+ body{background:#fff}header,.tabs,.bar,.toast,#form{display:none!important}
+ main{display:block;padding:0;margin:0}#prev{display:block!important;border:0;padding:0;background:none}
+ .sheet{padding:0}
+ @page{margin:18mm}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>Günlük Ders Planı</h1>
+ <p>Alanları doldurun, plan yanda hazırlanır. Yazdırarak PDF alabilirsiniz.</p>
+</header>
+<div class="tabs"><button id="t1" class="on">Düzenle</button><button id="t2">Önizle</button></div>
+<main>
+ <section class="panel" id="form">
+  <div class="row">
+   <div><label for="hafta">Hafta</label><input id="hafta" inputmode="text"></div>
+   <div><label for="tarih">Tarih aralığı</label><input id="tarih"></div>
+  </div>
+  <div class="row">
+   <div><label for="ders">Ders</label><input id="ders"></div>
+   <div><label for="sinif">Sınıf</label><input id="sinif"></div>
+  </div>
+  <label for="unite">Ünite / Konu</label><input id="unite">
+  <label for="kazanim">Öğrenme çıktıları ve kazanımlar</label><textarea id="kazanim"></textarea>
+  <label for="etkinlik">Ders işleniş ve etkinlikler</label><textarea id="etkinlik" style="min-height:160px"></textarea>
+  <details>
+   <summary>Yöntem, araç ve değerlendirme</summary>
+   <label for="yontem">Yöntem ve teknikler</label><textarea id="yontem"></textarea>
+   <label for="arac">Kullanılan araç gereçler</label><textarea id="arac"></textarea>
+   <label for="olcme">Ölçme ve değerlendirme</label><textarea id="olcme"></textarea>
+  </details>
+  <details>
+   <summary>Okul ve imza bilgileri</summary>
+   <label for="bakanlik">Başlık</label><textarea id="bakanlik"></textarea>
+   <label for="okul">Okul adı</label><input id="okul">
+   <div class="row">
+    <div><label for="ogretmen">Öğretmen</label><input id="ogretmen"></div>
+    <div><label for="brans">Branş</label><input id="brans"></div>
+   </div>
+   <label for="mudur">Müdür</label><input id="mudur">
+   <label for="yil">İmza yılı</label><input id="yil">
+  </details>
+ </section>
+ <section class="panel hide" id="prev"><div class="sheet" id="sheet"></div></section>
+</main>
+<div class="bar">
+ <button id="yeni">Sonraki hafta</button>
+ <button id="kop">Kopyala</button>
+ <button id="doc">Word (.docx)</button>
+ <button id="yaz" class="p">Yazdır / PDF</button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var D={hafta:"1. Hafta",tarih:"5-9 Ekim",ders:"Müzik",sinif:"11. Sınıf",
+unite:"Türk Halk Müziği ve İcrada Usuller",
+kazanim:"Öğrencilerin Türk halk müziğinde kullanılan yöresel tavırları tanımaları, bağlama ile temel ezgileri usulüne uygun icra etmeleri.",
+etkinlik:"1. Hazırlık ve Motivasyon (10 dk): Sınıfın selamlanması, önceki dersin kısaca hatırlatılması ve ses açma egzersizleri.\n2. Sunum ve Uygulama (25 dk): Yöresel tavırların incelenmesi, örnek eserlerin dinletilmesi ve bağlama eşliğinde çalınması.\n3. Değerlendirme ve Özet (5 dk): Öğrenilen eserlerin öğrenciler tarafından bireysel olarak icra edilmesi ve genel değerlendirme.",
+yontem:"Anlatım, Tartışma, Uygulama, Dinleme, Gösterip Yaptırma, Problem Çözme.",
+arac:"Bağlama, Ders Kitabı, Ses Kayıt Cihazı, Akıllı Tahta, Nota Sehpası.",
+olcme:"Soru-cevap, performans değerlendirme, akran değerlendirme ve bireysel çalgı icrası kontrolü.",
+bakanlik:"T.C. MİLLÎ EĞİTİM BAKANLIĞI\nÇİĞLİ BORSA İSTANBUL MESLEKİ VE TEKNİK ANADOLU LİSESİ\n11. SINIF MÜZİK DERSİ GÜNLÜK DERS PLANI",
+okul:"Çiğli Borsa İstanbul Mesleki ve Teknik Anadolu Lisesi",ogretmen:"Ali Kıran",brans:"Müzik Öğretmeni",mudur:"Murat Kayadelen",yil:"2026"};
+var K=Object.keys(D),KEY="gunlukPlan.v1",v={};
+try{var s=localStorage.getItem(KEY);v=s?JSON.parse(s):{}}catch(e){v={}}
+K.forEach(function(k){if(typeof v[k]!=="string")v[k]=D[k];var el=document.getElementById(k);el.value=v[k];
+ el.addEventListener("input",function(){v[k]=el.value;save();draw()})});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function up(t){return t.toLocaleUpperCase("tr")}
+function draw(){
+ var rows=[["Okul Adı",v.okul],["Öğretmen Adı Soyadı",v.ogretmen],["Müdür Adı Soyadı",v.mudur],
+ ["Ders / Sınıf",v.ders+" / "+v.sinif],["Hafta / Tarih",v.hafta+" ("+v.tarih+")"],["Ünite / Konu",v.unite]];
+ var secs=[["1. ÖĞRENME ÇIKTILARI VE KAZANIMLAR",v.kazanim],["2. YÖNTEM VE TEKNİKLER",v.yontem],
+ ["3. KULLANILAN ARAÇ GEREÇLER",v.arac],["4. DERS İŞLENİŞİ VE ETKİNLİKLER",v.etkinlik],["5. ÖLÇME VE DEĞERLENDİRME",v.olcme]];
+ var h='<div class="t">'+esc(v.bakanlik)+'</div><table>';
+ rows.forEach(function(r){h+="<tr><td>"+esc(r[0])+"</td><td>"+esc(r[1])+"</td></tr>"});
+ h+="</table>";
+ secs.forEach(function(x){h+="<h3>"+x[0]+'</h3><div class="b">'+esc(x[1])+"</div>"});
+ h+='<div class="sig"><div>UYGUNDUR\n.../.../'+esc(v.yil)+"\n"+esc(up(v.mudur))+"\nOkul Müdürü</div><div>\n.../.../"+esc(v.yil)+"\n"+esc(up(v.ogretmen))+"\n"+esc(v.brans)+"</div></div>";
+ document.getElementById("sheet").innerHTML=h;
+}
+function plain(){
+ var t=v.bakanlik+"\n\nOkul: "+v.okul+"\nÖğretmen: "+v.ogretmen+"\nMüdür: "+v.mudur+"\nDers / Sınıf: "+v.ders+" / "+v.sinif+"\nHafta / Tarih: "+v.hafta+" ("+v.tarih+")\nÜnite / Konu: "+v.unite;
+ [["1. ÖĞRENME ÇIKTILARI VE KAZANIMLAR",v.kazanim],["2. YÖNTEM VE TEKNİKLER",v.yontem],["3. KULLANILAN ARAÇ GEREÇLER",v.arac],["4. DERS İŞLENİŞİ VE ETKİNLİKLER",v.etkinlik],["5. ÖLÇME VE DEĞERLENDİRME",v.olcme]].forEach(function(x){t+="\n\n"+x[0]+"\n"+x[1]});
+ return t;
+}
+function toast(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("on");setTimeout(function(){e.classList.remove("on")},1600)}
+document.getElementById("yaz").onclick=function(){
+ document.getElementById("prev").classList.remove("hide");
+ if(window.AndroidBridge){setTimeout(function(){AndroidBridge.print()},150)}else window.print()};
+document.getElementById("kop").onclick=function(){
+ var t=plain();
+ function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");toast("Kopyalandı")}catch(e){toast("Kopyalanamadı")}a.remove()}
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast("Kopyalandı")},fb)}else fb()};
+document.getElementById("yeni").onclick=function(){
+ var m=v.hafta.match(/\d+/);
+ if(m){v.hafta=v.hafta.replace(/\d+/,String(+m[0]+1))}
+ v.tarih="";v.kazanim="";v.etkinlik="";v.unite="";
+ K.forEach(function(k){document.getElementById(k).value=v[k]});
+ save();draw();setTab(1);toast("Yeni hafta açıldı")};
+/* ---- Word (.docx) üretimi: harici kütüphane yok ---- */
+var enc=new TextEncoder(),CT=(function(){var t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc(b){var c=0xFFFFFFFF;for(var i=0;i<b.length;i++)c=CT[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function zip(files){
+ var parts=[],cd=[],off=0;
+ files.forEach(function(f){
+  var nm=enc.encode(f[0]),d=enc.encode(f[1]),c=crc(d);
+  var h=new DataView(new ArrayBuffer(30));
+  h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(8,0,true);
+  h.setUint32(14,c,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nm.length,true);
+  parts.push(new Uint8Array(h.buffer),nm,d);
+  var e=new DataView(new ArrayBuffer(46));
+  e.setUint32(0,0x02014b50,true);e.setUint16(4,20,true);e.setUint16(6,20,true);
+  e.setUint32(16,c,true);e.setUint32(20,d.length,true);e.setUint32(24,d.length,true);e.setUint16(28,nm.length,true);e.setUint32(42,off,true);
+  cd.push(new Uint8Array(e.buffer),nm);
+  off+=30+nm.length+d.length});
+ var sz=0;cd.forEach(function(x){sz+=x.length});
+ var z=new DataView(new ArrayBuffer(22));
+ z.setUint32(0,0x06054b50,true);z.setUint16(8,files.length,true);z.setUint16(10,files.length,true);z.setUint32(12,sz,true);z.setUint32(16,off,true);
+ return new Blob(parts.concat(cd,[new Uint8Array(z.buffer)]),{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})}
+function x(t){return String(t).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})}
+function runs(t,o){o=o||{};
+ var pr='<w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'+(o.b?"<w:b/>":"")+(o.c?'<w:color w:val="'+o.c+'"/>':"")+'<w:sz w:val="'+(o.s||21)+'"/></w:rPr>';
+ return String(t).split("\n").map(function(l,i){return "<w:r>"+pr+(i?"<w:br/>":"")+'<w:t xml:space="preserve">'+x(l)+"</w:t></w:r>"}).join("")}
+function para(t,o){o=o||{};
+ return "<w:p><w:pPr><w:spacing w:before=\""+(o.bf||0)+"\" w:after=\""+(o.af==null?120:o.af)+"\"/>"+(o.ctr?'<w:jc w:val="center"/>':"")+"</w:pPr>"+runs(t,o)+"</w:p>"}
+function cell(t,w,o){o=o||{};
+ return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>'+(o.sh?'<w:shd w:val="clear" w:color="auto" w:fill="F1F4F8"/>':"")+"</w:tcPr>"+para(t,{b:o.b,s:o.s||20,af:0,ctr:o.ctr})+"</w:tc>"}
+function docXml(){
+ var bd=["top","left","bottom","right","insideH","insideV"].map(function(s){return "<w:"+s+' w:val="single" w:sz="4" w:space="0" w:color="888888"/>'}).join("");
+ var rows=[["Okul Adı",v.okul],["Öğretmen Adı Soyadı",v.ogretmen],["Müdür Adı Soyadı",v.mudur],["Ders / Sınıf",v.ders+" / "+v.sinif],["Hafta / Tarih",v.hafta+" ("+v.tarih+")"],["Ünite / Konu",v.unite]];
+ var b=para(v.bakanlik,{b:1,s:22,ctr:1,af:240});
+ b+="<w:tbl><w:tblPr><w:tblW w:w=\"9000\" w:type=\"dxa\"/><w:jc w:val=\"center\"/><w:tblBorders>"+bd+"</w:tblBorders><w:tblCellMar><w:top w:w=\"60\" w:type=\"dxa\"/><w:left w:w=\"100\" w:type=\"dxa\"/><w:bottom w:w=\"60\" w:type=\"dxa\"/><w:right w:w=\"100\" w:type=\"dxa\"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w=\"3000\"/><w:gridCol w:w=\"6000\"/></w:tblGrid>";
+ rows.forEach(function(r){b+="<w:tr>"+cell(r[0],3000,{b:1,sh:1})+cell(r[1],6000)+"</w:tr>"});
+ b+="</w:tbl>"+para("",{af:0});
+ [["1. ÖĞRENME ÇIKTILARI VE KAZANIMLAR",v.kazanim],["2. YÖNTEM VE TEKNİKLER",v.yontem],["3. KULLANILAN ARAÇ GEREÇLER",v.arac],["4. DERS İŞLENİŞİ VE ETKİNLİKLER",v.etkinlik],["5. ÖLÇME VE DEĞERLENDİRME",v.olcme]].forEach(function(s){
+  b+=para(s[0],{b:1,s:22,c:"003366",bf:160,af:40})+para(s[1],{s:21,af:200})});
+ b+=para("",{af:240})+'<w:tbl><w:tblPr><w:tblW w:w="9000" w:type="dxa"/></w:tblPr><w:tblGrid><w:gridCol w:w="4500"/><w:gridCol w:w="4500"/></w:tblGrid><w:tr>'+
+  cell("UYGUNDUR\n.../.../"+v.yil+"\n"+up(v.mudur)+"\nOkul Müdürü",4500,{ctr:1})+cell("\n.../.../"+v.yil+"\n"+up(v.ogretmen)+"\n"+v.brans,4500,{ctr:1})+"</w:tr></w:tbl>";
+ return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+b+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>'}
+function docBlob(){
+ return zip([
+  ["[Content_Types].xml",'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'],
+  ["_rels/.rels",'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'],
+  ["word/document.xml",docXml()]])}
+document.getElementById("doc").onclick=function(){
+ var name="gunluk_plan_"+(v.hafta||"hafta").replace(/[^0-9A-Za-zÇĞİÖŞÜçğıöşü]+/g,"_")+".docx",blob=docBlob();
+ function direct(){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();toast("Word dosyası hazırlandı")}
+ if(window.AndroidBridge){
+  var fr=new FileReader();fr.onload=function(){AndroidBridge.saveFile(name,String(fr.result).split(",")[1])};fr.readAsDataURL(blob);return}
+ if(window.claude&&claude.use){
+  claude.use("downloads").then(function(d){
+   if(!d){direct();return}
+   d.save({filename:name,data:blob}).then(function(){toast("Kaydedildi")},function(e){if(!e||e.code!=="declined")toast("Kaydedilemedi")})
+  },direct)
+ }else direct()};
+function setTab(n){
+ document.getElementById("form").classList.toggle("hide",n===2);
+ document.getElementById("prev").classList.toggle("hide",n===1);
+ document.getElementById("t1").classList.toggle("on",n===1);
+ document.getElementById("t2").classList.toggle("on",n===2);
+ window.scrollTo(0,0)}
+document.getElementById("t1").onclick=function(){setTab(1)};
+document.getElementById("t2").onclick=function(){setTab(2)};
+setTab(1);draw();
+</script>
+</body>
+</html>

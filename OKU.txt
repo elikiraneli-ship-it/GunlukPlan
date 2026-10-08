@@ -1,0 +1,7 @@
+APK ALMA (Android Studio)
+1. Android Studio'yu açın: File > Open > GunlukPlan klasörünü seçin.
+2. Gradle senkronizasyonu bitsin (ilk seferde internet gerekir).
+3. Build > Build Bundle(s) / APK(s) > Build APK(s).
+4. Çıkan dosya: app/build/outputs/apk/debug/app-debug.apk
+Telefonda "bilinmeyen kaynaklardan kurulum"a izin verip APK'yı açın.
+Arayüzü değiştirmek için: app/src/main/assets/index.html
